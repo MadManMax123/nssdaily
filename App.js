@@ -23,13 +23,29 @@ export default function App() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const formattedMessage = `Good morning sir!\n\n🌃 Yesterday I slept at ${formData.st}\n🌇 Today I woke up at ${formData.wt}\n\n🎯Today's targets:\n${formData.T.map(t => `* ${t}`).join('\n')}\n\n🎵 Extracurriculars:\n${formData.exc.map(e => `* ${e}`).join('\n')}\n\n\`\nYesterday ${formData.pdp ? 'was' : 'was not'} a productive day for me.\n${formData.pdc}\n\`\n\n${formData.comments}`;
+  const formattedMessage = `Good morning sir!\n\n🌃 Yesterday I slept at ${formData.st}\n🌇 Today I woke up at ${formData.wt}\n\n🎯Today's targets:\n${formData.T.map(t => `* ${t}`).join('\n')}\n\n🎵 Extracurriculars:\n${formData.exc.map(e => `* ${e}`).join('\n')}\n\n\`\`\nYesterday ${formData.pdp ? 'was' : 'was not'} a productive day for me.\n${formData.pdc}\n\`\`\n\n${formData.comments}`;
 
-    const data = new FormData();
-    data.append('message', formattedMessage);
-    if (formData.file) data.append('attachment', formData.file);
+  const data = new FormData();
+  data.append('message', formattedMessage);
+  if (formData.file) data.append('attachment', formData.file);
+
+  // Send the message to Telegram
+  fetch(`https://api.telegram.org/bot8166409334:AAHeuZQx_d6aTsOc3lZeM7-yblvAfGv7rQo/sendMessage?chat_id=7950461357&text=${encodeURIComponent(formattedMessage)}`, {
+    method: 'GET',
+  })
+  .then(res => res.json())
+  .then(response => {
+    if (response.ok) {
+      alert('Message sent to Telegram!');
+    } else {
+      alert('Error sending message');
+    }
+  })
+  .catch(err => alert('Error sending message to Telegram'));
+};
+
 
     fetch('https://formspree.io/f/xdkgdvgq', {
       method: 'POST',
