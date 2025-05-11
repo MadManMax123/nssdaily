@@ -1,15 +1,25 @@
-document.getElementById("themeToggle").addEventListener("change", function () {
+const form = document.getElementById("dailyForm");
+const toggle = document.getElementById("themeToggle");
+const overlay = document.createElement("div");
+
+overlay.id = "overlay";
+overlay.innerHTML = `
+  <div class="spinner"></div>
+  <div class="checkmark">✔</div>
+`;
+document.body.appendChild(overlay);
+
+toggle.addEventListener("change", () => {
   document.body.classList.toggle("dark");
 });
 
-document.getElementById("dailyForm").addEventListener("submit", async function (e) {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const form = e.target;
   const data = new FormData(form);
 
-  const targets = data.get("T").trim().split('\n').filter(t => t).map(t => `* ${t}`).join('\n');
-  const extracurriculars = data.get("exc").trim().split('\n').filter(e => e).map(e => `* ${e}`).join('\n');
+  const targets = data.get("T").trim().split("\n").filter(Boolean).map(t => `* ${t}`).join("\n");
+  const extracurriculars = data.get("exc").trim().split("\n").filter(Boolean).map(e => `* ${e}`).join("\n");
 
   const message = `
 Good morning sir!
@@ -29,18 +39,18 @@ ${data.get("pdc")}
 \`\`\`
 
 ${data.get("comments") || ''}
-  `;
+`;
 
   const chatId = "7950461357";
   const token = "8166409334:AAHeuZQx_d6aTsOc3lZeM7-yblvAfGv7rQo";
 
+  overlay.classList.add("visible");
+
   try {
-    // Send formatted message
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    // Send text message first
+    const sendMessageRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
         text: message,
@@ -48,23 +58,35 @@ ${data.get("comments") || ''}
       })
     });
 
-    // If PDF is attached, upload it
+    if (!sendMessageRes.ok) throw new Error("Failed to send text");
+
+    // If PDF is attached, send it too
     const file = data.get("attachment");
-    if (file && file.name && file.type === "application/pdf") {
+    if (file && file.type === "application/pdf") {
       const fileData = new FormData();
       fileData.append("chat_id", chatId);
       fileData.append("document", file);
-      await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
+
+      const docRes = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
         method: "POST",
         body: fileData
       });
+
+      if (!docRes.ok) throw new Error("Failed to send PDF");
     }
 
-    alert("Report successfully submitted to Telegram!");
-    form.reset();
+    // Show checkmark
+    overlay.classList.remove("loading");
+    overlay.classList.add("success");
+
+    setTimeout(() => {
+      overlay.classList.remove("visible", "success");
+      form.reset();
+    }, 2000);
 
   } catch (err) {
-    console.error("Telegram API error:", err);
+    console.error(err);
     alert("Failed to send message. Please try again.");
+    overlay.classList.remove("visible");
   }
 });
