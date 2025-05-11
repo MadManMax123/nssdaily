@@ -9,8 +9,8 @@ overlay.innerHTML = `
 `;
 document.body.appendChild(overlay);
 
-// Escape Markdown characters
-function escapeMarkdown(text) {
+// Escape MarkdownV2 characters
+function escapeMarkdownV2(text) {
   return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
 }
 
@@ -23,16 +23,16 @@ form.addEventListener("submit", async (e) => {
 
   const data = new FormData(form);
 
-  const targets = escapeMarkdown(data.get("T").trim())
+  const targets = escapeMarkdownV2(data.get("T").trim())
     .split("\n").filter(Boolean).map(t => `* ${t}`).join("\n");
-  const extracurriculars = escapeMarkdown(data.get("exc").trim())
+  const extracurriculars = escapeMarkdownV2(data.get("exc").trim())
     .split("\n").filter(Boolean).map(e => `* ${e}`).join("\n");
 
   const message = `
 Good morning sir!
 
-🌃 Yesterday I slept at ${escapeMarkdown(data.get("st"))}
-🌇 Today I woke up at ${escapeMarkdown(data.get("wt"))}
+🌃 Yesterday I slept at ${escapeMarkdownV2(data.get("st"))}
+🌇 Today I woke up at ${escapeMarkdownV2(data.get("wt"))}
 
 🎯Today's targets:
 ${targets || '* None'}
@@ -41,11 +41,11 @@ ${targets || '* None'}
 ${extracurriculars || '* None'}
 
 \`\`\`
-Yesterday ${escapeMarkdown(data.get("pdp"))} a productive day for me.
-${escapeMarkdown(data.get("pdc"))}
+Yesterday ${escapeMarkdownV2(data.get("pdp"))} a productive day for me.
+${escapeMarkdownV2(data.get("pdc"))}
 \`\`\`
 
-${escapeMarkdown(data.get("comments") || '')}
+${escapeMarkdownV2(data.get("comments") || '')}
 `;
 
   const chatId = "7950461357";
@@ -54,19 +54,21 @@ ${escapeMarkdown(data.get("comments") || '')}
   overlay.classList.add("visible");
 
   try {
+    console.log("Sending the following message to Telegram:", message);  // Debugging the message
+
     const sendMessageRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
         text: message,
-        parse_mode: "MarkdownV2"  // More strict than Markdown
+        parse_mode: "MarkdownV2"  // Using MarkdownV2 for stricter escaping
       })
     });
 
     const sendMessageJson = await sendMessageRes.json();
     if (!sendMessageRes.ok) {
-      throw new Error(`sendMessage error: ${sendMessageJson.description}`);
+      throw new Error(`sendMessage error: ${sendMessageJson.description} (Error Code: ${sendMessageJson.error_code})`);
     }
 
     const file = data.get("attachment");
@@ -82,7 +84,7 @@ ${escapeMarkdown(data.get("comments") || '')}
 
       const docJson = await docRes.json();
       if (!docRes.ok) {
-        throw new Error(`sendDocument error: ${docJson.description}`);
+        throw new Error(`sendDocument error: ${docJson.description} (Error Code: ${docJson.error_code})`);
       }
     }
 
