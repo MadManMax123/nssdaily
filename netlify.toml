@@ -1,7 +1,9 @@
 [build]
-  base = "."
-  publish = "build"
   command = "npm run build"
+  publish = "build"
 
-[context.production.environment]
-  NODE_VERSION = "18"
+[build.environment]
+  NODE_VERSION = "16.20.2"
+  NODE_ENV = "production"
+  # This line is crucial for Webpack 4 with Node.js >=17
+  NODE_OPTIONS = "--openssl-legacy-provider"
