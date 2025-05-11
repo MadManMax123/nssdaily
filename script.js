@@ -8,8 +8,8 @@ document.getElementById("dailyForm").addEventListener("submit", async function (
   const form = e.target;
   const data = new FormData(form);
 
-  const targets = data.get("T").split('\n').map(t => `* ${t}`).join('\n');
-  const extracurriculars = data.get("exc").split('\n').map(e => `* ${e}`).join('\n');
+  const targets = data.get("T").trim().split('\n').filter(t => t).map(t => `* ${t}`).join('\n');
+  const extracurriculars = data.get("exc").trim().split('\n').filter(e => e).map(e => `* ${e}`).join('\n');
 
   const message = `
 Good morning sir!
@@ -18,29 +18,53 @@ Good morning sir!
 🌇 Today I woke up at ${data.get("wt")}
 
 🎯Today's targets:
-${targets}
+${targets || '* None'}
 
 🎵Extracurriculars:
-${extracurriculars}
+${extracurriculars || '* None'}
 
 \`\`\`
 Yesterday ${data.get("pdp")} a productive day for me.
 ${data.get("pdc")}
 \`\`\`
 
-${data.get("comments")}
-`;
+${data.get("comments") || ''}
+  `;
 
-  const payload = new FormData();
-  payload.append("message", message);
-  payload.append("attachment", data.get("attachment"));
+  const chatId = "7950461357";
+  const token = "8166409334:AAHeuZQx_d6aTsOc3lZeM7-yblvAfGv7rQo";
 
-  // Replace this Zapier webhook with yours
-  await fetch("https://hooks.zapier.com/hooks/catch/14350637/2nctk7b/", {
-    method: "POST",
-    body: payload
-  });
+  try {
+    // Send formatted message
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: "Markdown"
+      })
+    });
 
-  alert("Submitted!");
-  form.reset();
+    // If PDF is attached, upload it
+    const file = data.get("attachment");
+    if (file && file.name && file.type === "application/pdf") {
+      const fileData = new FormData();
+      fileData.append("chat_id", chatId);
+      fileData.append("document", file);
+      await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
+        method: "POST",
+        body: fileData
+      });
+    }
+
+    alert("Report successfully submitted to Telegram!");
+    form.reset();
+
+  } catch (err) {
+    console.error("Telegram API error:", err);
+    alert("Failed to send message. Please try again.");
+  }
 });
