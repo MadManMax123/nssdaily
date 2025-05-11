@@ -9,9 +9,9 @@ overlay.innerHTML = `
 `;
 document.body.appendChild(overlay);
 
-// Escape MarkdownV2 characters (Including '!') for safe formatting
+// Escape MarkdownV2 characters (Removing '!' and escaping others)
 function escapeMarkdownV2(text) {
-  return text.replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+  return text.replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1').replace(/!/g, '');
 }
 
 toggle.addEventListener("change", () => {
