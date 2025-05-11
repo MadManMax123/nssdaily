@@ -7,4 +7,3 @@
   NODE_VERSION = "16.20.2"
   NODE_ENV = "production"
   # This line is crucial for Webpack 4 with Node.js >=17
-  NODE_OPTIONS = "--openssl-legacy-provider"
