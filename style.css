@@ -1,0 +1,111 @@
+:root {
+  --bg-light: #f3f3f3;
+  --bg-dark: #1e1e1e;
+  --text-light: #111;
+  --text-dark: #eee;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+.bg {
+  background-image: url('bg.png');
+  background-size: cover;
+  background-attachment: fixed;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+.watermark {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  width: 80px;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 10px cyan);
+  z-index: 2;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  padding: 2em;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 1rem;
+  box-shadow: 0 0 10px #0003;
+  margin-top: 4em;
+  color: var(--text-light);
+}
+
+body.dark .container {
+  background-color: rgba(30, 30, 30, 0.95);
+  color: var(--text-dark);
+}
+
+form label {
+  display: block;
+  margin: 1em 0;
+}
+
+textarea, input, select, button {
+  width: 100%;
+  padding: 0.6em;
+  border-radius: 0.5em;
+  border: 1px solid #aaa;
+  font-size: 1em;
+}
+
+button {
+  background-color: #00bcd4;
+  color: white;
+  border: none;
+  margin-top: 1em;
+  cursor: pointer;
+}
+
+.toggle-container {
+  margin-top: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  justify-content: center;
+}
+
+/* Light/Dark toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+.switch input { display: none; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+input:checked + .slider {
+  background-color: #2196F3;
+}
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
