@@ -9,7 +9,7 @@ overlay.innerHTML = `
 `;
 document.body.appendChild(overlay);
 
-// Escape MarkdownV2 characters
+// Escape MarkdownV2 characters (including exclamation mark and others)
 function escapeMarkdownV2(text) {
   return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
 }
